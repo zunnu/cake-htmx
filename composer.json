@@ -1,0 +1,24 @@
+{
+    "name": "zunnu/cake-htmx",
+    "description": "Htmx plugin for CakePHP",
+    "type": "cakephp-plugin",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.2",
+        "cakephp/cakephp": "^4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5 || ^9.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "CakeHtmx\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CakeHtmx\\Test\\": "tests/",
+            "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
+        }
+    }
+}
