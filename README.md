@@ -103,6 +103,16 @@ $this->Htmx
     ->addTrigger('trigger2', 'Another Message')
 ```
 
+## CSRF token
+
+To add CSRF token to all your request add below code to your layout.
+
+```php
+document.body.addEventListener('htmx:configRequest', (event) => {
+    event.detail.headers['X-CSRF-Token'] = "<?= $this->getRequest()->getAttribute('csrfToken') ?>";
+})
+```
+
 ## License
 
 Licensed under [The MIT License][mit].
