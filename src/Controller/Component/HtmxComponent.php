@@ -90,7 +90,7 @@ class HtmxComponent extends Component
      */
     public function afterRender($event)
     {
-        if(!empty($this->block) && $event->getSubject()->exists($this->block)) {
+        if (!empty($this->block) && $event->getSubject()->exists($this->block)) {
             $block = $event->getSubject()->fetch($this->block);
             $event->getSubject()->assign('content', $block);
         }
@@ -324,7 +324,7 @@ class HtmxComponent extends Component
      * @param array $headers The headers that will be set
      * @return \Cake\Http\Response|null
      */
-    public function stopPolling($content = '', array $headers = []): ?Response
+    public function stopPolling(string $content = '', array $headers = []): ?Response
     {
         $response = $this->getController()->getResponse();
 
@@ -360,10 +360,10 @@ class HtmxComponent extends Component
 
     /**
      * Set a specific block to render
-     * 
-     * @param null|string $block  Name of the block
+     *
+     * @param string|null $block Name of the block
      */
-    public function setBlock($block): static
+    public function setBlock(?string $block): static
     {
         $this->block = $block;
 
@@ -372,8 +372,8 @@ class HtmxComponent extends Component
 
     /**
      * Get the block that will be rendered
-     * 
-     * @return null|string
+     *
+     * @return string|null
      */
     public function getBlock(): ?string
     {
