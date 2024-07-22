@@ -19,6 +19,13 @@ class HtmxComponent extends Component
     protected array $_defaultConfig = [];
 
     /**
+     * The name of the block.
+     *
+     * @var string|null
+     */
+    protected ?string $block = null;
+
+    /**
      * List of triggers to use on request
      *
      * @var array
@@ -40,6 +47,19 @@ class HtmxComponent extends Component
     private array $triggersAfterSwap = [];
 
     /**
+     * Get the callbacks this class is interested in.
+     *
+     * @return array<string, mixed>
+     */
+    public function implementedEvents(): array
+    {
+        return [
+            'View.beforeRender' => 'beforeRender',
+            'View.afterRender' => 'afterRender',
+        ];
+    }
+
+    /**
      * Initialize properties.
      *
      * @param array<string, mixed> $config The config data.
@@ -54,10 +74,25 @@ class HtmxComponent extends Component
      *
      * @return void
      */
-    public function beforeRender(): void
+    public function beforeRender($event): void
     {
         if ($this->getController()->getRequest()->is('htmx')) {
             $this->prepare();
+        }
+    }
+
+    /**
+     * afterRender callback.
+     *
+     * If setBlock is used this will render the set block if it exists
+     *
+     * @return void
+     */
+    public function afterRender($event)
+    {
+        if(!empty($this->block) && $event->getSubject()->exists($this->block)) {
+            $block = $event->getSubject()->fetch($this->block);
+            $event->getSubject()->assign('content', $block);
         }
     }
 
@@ -321,5 +356,27 @@ class HtmxComponent extends Component
         }
 
         return implode(',', array_keys($triggers));
+    }
+
+    /**
+     * Set a specific block to render
+     * 
+     * @param null|string $block  Name of the block
+     */
+    public function setBlock($block): static
+    {
+        $this->block = $block;
+
+        return $this;
+    }
+
+    /**
+     * Get the block that will be rendered
+     * 
+     * @return null|string
+     */
+    public function getBlock(): ?string
+    {
+        return $this->block;
     }
 }
