@@ -2,7 +2,7 @@
 
 CakePHP integration for [htmx](https://htmx.org/).
 
-Supported CakePHP Versions >= 4.x.x. 5.x support will be added later.
+Supported CakePHP Versions >= [4.x](https://github.com/zunnu/cake-htmx/tree/4.x) and 5.x.
 
 ## Installing Using [Composer][composer]
 
