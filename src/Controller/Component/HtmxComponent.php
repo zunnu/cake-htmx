@@ -16,7 +16,7 @@ class HtmxComponent extends Component
      *
      * @var array<string, mixed>
      */
-    protected $_defaultConfig = [];
+    protected array $_defaultConfig = [];
 
     /**
      * List of triggers to use on request
