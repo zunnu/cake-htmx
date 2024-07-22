@@ -113,6 +113,123 @@ document.body.addEventListener('htmx:configRequest', (event) => {
 })
 ```
 
+## Examples
+
+### Users index search functionality
+
+In this example, we will implement a search functionality for the users' index using Htmx to filter results dynamically. We will wrap our table body inside a [viewBlock](https://book.cakephp.org/5/en/views.html#using-view-blocks) called `usersTable`. When the page loads, we will render the `usersTable` [viewBlock](https://book.cakephp.org/5/en/views.html#using-view-blocks).
+
+```php
+// Template/Users/index.php
+
+<?= $this->Form->control('search', [
+    'label' => false, 
+    'placeholder' => __('Search'),
+    'type' => 'text', 
+    'required' => false, 
+    'class' => 'form-control input-text search',
+    'value' => !empty($search) ? $search : '',
+    'hx-get' => $this->Url->build(['controller' => 'Users', 'action' => 'index']),
+    'hx-trigger' => "keyup changed delay:200ms",
+    'hx-target' => "#search-results",
+    'templates' => [
+        'inputContainer' => '<div class="col-10 col-md-6 col-lg-5">{{content}}</div>'
+    ]
+]); ?>
+
+<table id="usersTable" class="table table-hover table-white-bordered">
+    <thead>
+        <tr>
+            <th scope="col"><?= 'id' ?></th>
+            <th scope="col"><?= 'Name' ?></th>
+            <th scope="col"><?= 'Email' ?></th>
+            <th scope="col"><?= 'Modified' ?></th>
+            <th scope="col"><?= 'Created' ?></th>
+            <th scope="col" class="actions"><?= __('Actions') ?></th>
+        </tr>
+    </thead>
+    
+    <tbody id="search-results">
+        <?php $this->start('usersTable'); ?>
+            <?php foreach ($users as $user): ?>
+                <tr>
+                    <td><?= $user->id ?></td>
+                    <td><?= h($user->name) ?></td>
+                    <td><?= h($user->email) ?></td>
+                    <td><?= $user->modified ?></td>
+                    <td><?= $user->created ?></td>
+                    <td class="actions">
+                        <?= $this->Html->link('Edit',
+                            [
+                                'action' => 'edit',
+                                $user->id
+                            ],
+                            [
+                                'escape' => false
+                            ]
+                        ); ?>
+                        <?= $this->Form->postLink('Delete',
+                            [
+                                'action' => 'delete',
+                                $user->id
+                            ],
+                            [
+                                'confirm' => __('Are you sure you want to delete user {0}?', $user->email),
+                                'escape' => false
+                            ]
+                        ); ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php $this->end(); ?>
+
+        <?php echo $this->fetch('usersTable'); ?>
+    </tbody>
+</table>
+```
+In out controller we will check if the request is Htmx and if so then we will only render the `usersTable` [viewBlock](https://book.cakephp.org/5/en/views.html#using-view-blocks).
+
+```php
+// src/Controller/UsersController.php
+
+public function index()
+{
+    $search = null;
+    $query = $this->Users->find('all');
+
+    if ($this->request->is('get')) {
+        if(!empty($this->request->getQueryParams())) {
+            $data = $this->request->getQueryParams();
+
+            if(isset($data['search'])) {
+                $data = $data['search'];
+                $conditions = [
+                    'OR' => [
+                        'Users.id' => (int)$data,
+                        'Users.name LIKE' => '%' . $data . '%',
+                        'Users.email LIKE' => '%' . $data . '%',
+                    ],
+                ];
+                $query = $query->where([$conditions]);
+                $search = $data;
+            }
+        }
+    }
+
+    $users = $query->toArray();
+    $this->set(compact('users', 'search'));
+
+    if($this->getRequest()->is('htmx')) {
+        $this->viewBuilder()->disableAutoLayout();
+
+        // we will only render the usersTable viewblock
+        $this->Htmx->setBlock('usersTable');
+    }
+}
+```
+
+
+
 ## License
 
 Licensed under [The MIT License][mit].
