@@ -113,6 +113,33 @@ document.body.addEventListener('htmx:configRequest', (event) => {
 })
 ```
 
+## Rendering blocks and OOB Swap
+The `setBlock()` function allows you to render a specific block while removing other blocks that might be rendered. This is particularly useful when you need to update only a portion of your view.
+
+```php
+$this->Htmx->setBlock('userTable');
+```
+The `addBlock()` function allows you to add a specific block to the list of blocks that should be rendered.
+
+```php
+$this->Htmx->addBlock('userTable');
+```
+The `addBlocks()` function allows you to add multiple blocks to the list of blocks that should be rendered
+```php
+$this->Htmx->addBlocks(['userTable', 'pagination']);
+```
+
+### OOB Swap
+Htmx supports updating multiple targets by returning multiple partial responses with [`hx-swap-oop`](https://htmx.org/docs/#oob_swaps).
+See the example `Users index search functionality with pagination update`
+Note if you are working with tables like in the example. You might need to add
+```javascript
+<script type="text/javascript">
+    htmx.config.useTemplateFragments = true;
+</script>
+```
+In your template or layout.
+
 ## Examples
 
 ### Users index search functionality
@@ -145,7 +172,7 @@ In this example, we will implement a search functionality for the users' index u
             <th scope="col"><?= 'Email' ?></th>
             <th scope="col"><?= 'Modified' ?></th>
             <th scope="col"><?= 'Created' ?></th>
-            <th scope="col" class="actions"><?= __('Actions') ?></th>
+            <th scope="col" class="actions"><?= 'Actions' ?></th>
         </tr>
     </thead>
     
@@ -228,7 +255,142 @@ public function index()
 }
 ```
 
+### Users index search functionality with pagination update
+In this example, we will implement a dynamic search functionality for the users' index using Htmx. This will allow us to filter results in real-time and update pagination accordingly. We will wrap our table body inside a [viewBlock](https://book.cakephp.org/5/en/views.html#using-view-blocks) called `usersTable` and our pagination to `pagination` block. When the page loads, we will render both the `usersTable` and `pagination` [viewBlock](https://book.cakephp.org/5/en/views.html#using-view-blocks).
 
+```php
+// Template/Users/index.php
+
+<?= $this->Form->control('search', [
+    'label' => false, 
+    'placeholder' => __('Search'),
+    'type' => 'text', 
+    'required' => false, 
+    'class' => 'form-control input-text search',
+    'value' => !empty($search) ? $search : '',
+    'hx-get' => $this->Url->build(['controller' => 'Users', 'action' => 'index']),
+    'hx-trigger' => 'keyup changed delay:200ms',
+    'hx-target' => '#search-results',
+    'hx-push-url' => 'true',
+    'templates' => [
+        'inputContainer' => '<div class="col-10 col-md-6 col-lg-5">{{content}}</div>'
+    ]
+]); ?>
+
+<table id="usersTable" class="table table-hover table-white-bordered">
+    <thead>
+        <tr>
+            <th scope="col"><?= 'id' ?></th>
+            <th scope="col"><?= 'Name' ?></th>
+            <th scope="col"><?= 'Email' ?></th>
+            <th scope="col"><?= 'Modified' ?></th>
+            <th scope="col"><?= 'Created' ?></th>
+            <th scope="col" class="actions"><?= 'Actions' ?></th>
+        </tr>
+    </thead>
+    
+    <tbody id="search-results">
+        <?php $this->start('usersTable'); ?>
+            <?php foreach ($users as $user): ?>
+                <tr>
+                    <td><?= $user->id ?></td>
+                    <td><?= h($user->name) ?></td>
+                    <td><?= h($user->email) ?></td>
+                    <td><?= $user->modified ?></td>
+                    <td><?= $user->created ?></td>
+                    <td class="actions">
+                        <?= $this->Html->link('Edit',
+                            [
+                                'action' => 'edit',
+                                $user->id
+                            ],
+                            [
+                                'escape' => false
+                            ]
+                        ); ?>
+                        <?= $this->Form->postLink('Delete',
+                            [
+                                'action' => 'delete',
+                                $user->id
+                            ],
+                            [
+                                'confirm' => __('Are you sure you want to delete user {0}?', $user->email),
+                                'escape' => false
+                            ]
+                        ); ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php $this->end(); ?>
+
+        <?php echo $this->fetch('usersTable'); ?>
+    </tbody>
+</table>
+
+// pagination
+<?php $this->start('pagination'); ?>
+    <nav aria-label="Page navigation" id="pagination">
+        <ul class="pagination justify-content-center">
+            <?php $this->Paginator->setTemplates([
+                'prevActive' => '<li class="page-item pagination-previous"><a class="page-link" hx-get="{{url}}" hx-target="#search-results" hx-push-url="true" href="#">{{text}}</a></li>',
+                'prevDisabled' => '<li class="page-item disabled pagination-previous"><a class="page-link" hx-get="{{url}}" hx-target="#search-results" hx-push-url="true" href="#">{{text}}</a></li>',
+                'number' => '<li class="page-item"><a class="page-link" hx-get="{{url}}" hx-target="#search-results" hx-push-url="true" href="#">{{text}}</a></li>',
+                'current' => '<li class="page-item active"><a class="page-link" hx-get="{{url}}" hx-target="#search-results" hx-push-url="true" href="#">{{text}}</a></li>',
+                'nextActive' => '<li class="page-item pagination-next"><a class="page-link" hx-get="{{url}}" hx-target="#search-results" hx-push-url="true" href="#">{{text}}</a></li>',
+                'nextDisabled' => '<li class="page-item disabled pagination-next"><a class="page-link" hx-get="{{url}}" hx-target="#search-results" hx-push-url="true" href="#">{{text}}</a></li>',
+                'first' => '<li class="page-item pagination-next"><a class="page-link" hx-get="{{url}}" hx-target="#search-results" hx-push-url="true" href="#">{{text}}</a></li>',
+                'last' => '<li class="page-item pagination-next"><a class="page-link" hx-get="{{url}}" hx-target="#search-results" hx-push-url="true" href="#">{{text}}</a></li>',
+            ]); ?>
+            <?= $this->Paginator->first('<i class="fas fa-angles-left"></i>', ['escape' => false]) ?>
+            <?= $this->Paginator->prev('<i class="fas fa-chevron-left"></i>', ['escape' => false]) ?>
+            <?= $this->Paginator->numbers(['first' => 1, 'last' => 1, 'modulus' => 3]) ?>
+            <?= $this->Paginator->next('<i class="fas fa-chevron-right"></i>', ['escape' => false]) ?>
+            <?= $this->Paginator->last('<i class="fas fa-angles-right"></i>', ['escape' => false]) ?>
+        </ul>
+    </nav>
+<?php $this->end(); ?>
+
+<?= $this->fetch('pagination'); ?>
+```
+In out controller we will check if the request is Htmx and if so then we will only render the `usersTable` [viewBlock](https://book.cakephp.org/5/en/views.html#using-view-blocks).
+
+```php
+// src/Controller/UsersController.php
+
+public function index()
+{
+    $search = null;
+    $query = $this->Users->find('all');
+
+    if ($this->request->is('get')) {
+        if(!empty($this->request->getQueryParams())) {
+            $data = $this->request->getQueryParams();
+
+            if(isset($data['search'])) {
+                $data = $data['search'];
+                $conditions = [
+                    'OR' => [
+                        'Users.id' => (int)$data,
+                        'Users.name LIKE' => '%' . $data . '%',
+                        'Users.email LIKE' => '%' . $data . '%',
+                    ],
+                ];
+                $query = $query->where([$conditions]);
+                $search = $data;
+            }
+        }
+    }
+
+    $users = $query->toArray();
+    $this->set(compact('users', 'search'));
+
+    if($this->getRequest()->is('htmx')) {
+        $this->viewBuilder()->disableAutoLayout();
+
+        // render users table and pagination blocks
+        $this->Htmx->addBlock('usersTable')->addBlock('pagination');
+    }
+}
 
 ## License
 
