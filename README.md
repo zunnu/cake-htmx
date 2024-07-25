@@ -391,6 +391,7 @@ public function index()
         $this->Htmx->addBlock('usersTable')->addBlock('pagination');
     }
 }
+```
 
 ## License
 
