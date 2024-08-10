@@ -381,7 +381,8 @@ public function index()
         }
     }
 
-    $users = $query->toArray();
+    $this->paginate['limit'] = 200;
+    $users = $this->paginate($query);
     $this->set(compact('users', 'search'));
 
     if($this->getRequest()->is('htmx')) {
