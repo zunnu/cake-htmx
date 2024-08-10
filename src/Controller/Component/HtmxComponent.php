@@ -19,6 +19,13 @@ class HtmxComponent extends Component
     protected $_defaultConfig = [];
 
     /**
+     * List of blocks that will be rendered.
+     *
+     * @var array
+     */
+    protected array $blocks = [];
+
+    /**
      * List of triggers to use on request
      *
      * @var array
@@ -40,6 +47,19 @@ class HtmxComponent extends Component
     private array $triggersAfterSwap = [];
 
     /**
+     * Get the callbacks this class is interested in.
+     *
+     * @return array<string, mixed>
+     */
+    public function implementedEvents(): array
+    {
+        return [
+            'Controller.beforeRender' => 'beforeRender',
+            'View.afterRender' => 'afterRender',
+        ];
+    }
+
+    /**
      * Initialize properties.
      *
      * @param array<string, mixed> $config The config data.
@@ -54,10 +74,42 @@ class HtmxComponent extends Component
      *
      * @return void
      */
-    public function beforeRender(): void
+    public function beforeRender($event): void
     {
         if ($this->getController()->getRequest()->is('htmx')) {
             $this->prepare();
+        }
+    }
+
+    /**
+     * afterRender callback.
+     *
+     * If setBlock is used this will render the set block if it exists
+     *
+     * @return void
+     */
+    public function afterRender($event)
+    {
+        if (!empty($this->blocks)) {
+            // empty the content and replace with the ones we want
+            $event->getSubject()->assign('content', '');
+
+            $first = true;
+            foreach ($this->blocks as $key => $block) {
+                if ($event->getSubject()->exists($block)) {
+                    $fetchBlock = $event->getSubject()->fetch($block);
+
+                    if (!$first) {
+                        $fetchBlock = preg_replace('/(<[^\/][^>]*)(>)/', '$1 hx-swap-oob="innerHTML"$2', $fetchBlock, 1);
+                    }
+
+                    $event->getSubject()->append('content', $fetchBlock);
+
+                    if ($first) {
+                        $first = false;
+                    }
+                }
+            }
         }
     }
 
@@ -321,5 +373,52 @@ class HtmxComponent extends Component
         }
 
         return implode(',', array_keys($triggers));
+    }
+
+    /**
+     * Set a specific block to render
+     * Removes other blocks that might be rendered
+     *
+     * @param string|null $block Name of the block
+     */
+    public function setBlock(?string $block): static
+    {
+        $this->blocks = [$block];
+
+        return $this;
+    }
+
+    /**
+     * Add a specific block to render
+     *
+     * @param string $block Name of the block
+     */
+    public function addBlock(string $block): static
+    {
+        $this->blocks[] = $block;
+
+        return $this;
+    }
+
+    /**
+     * Add blocks to render
+     *
+     * @param array $block List of block names to render
+     */
+    public function addBlocks(array $block): static
+    {
+        $this->blocks[] = $block;
+
+        return $this;
+    }
+
+    /**
+     * Get the block that will be rendered
+     *
+     * @return string|null
+     */
+    public function getBlocks(): ?string
+    {
+        return $this->blocks;
     }
 }
