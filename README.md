@@ -9,7 +9,7 @@ Supported CakePHP Versions >= 4.x.x. 5.x support will be added later.
 `cd` to the root of your app folder (where the `composer.json` file is) and run the following command:
 
 ```
-composer require T0nyDamage/cake-htmx
+composer require zunnu/cake-htmx
 ```
 Then load the plugin by using CakePHP's console:
 
