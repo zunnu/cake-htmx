@@ -100,7 +100,9 @@ class HtmxComponent extends Component
                     $fetchBlock = $event->getSubject()->fetch($block);
 
                     if (!$first) {
-                        $fetchBlock = preg_replace('/(<[^\/][^>]*)(>)/', '$1 hx-swap-oob="innerHTML"$2', $fetchBlock, 1);
+                        $fetchBlock = preg_replace(
+                            '/(<[^\/][^>]*)(>)/', '$1 hx-swap-oob="innerHTML"$2', $fetchBlock, 1
+                        );
                     }
 
                     $event->getSubject()->append('content', $fetchBlock);
@@ -241,7 +243,7 @@ class HtmxComponent extends Component
      * @param array|string|null $body
      * @return static
      */
-    public function addTrigger(string $key, string|array|null $body = null): static
+    public function addTrigger(string $key, $body = null)
     {
         $this->triggers[$key] = $body;
 
@@ -256,7 +258,7 @@ class HtmxComponent extends Component
      * @param array|string|null $body
      * @return static
      */
-    public function addTriggerAfterSettle(string $key, string|array|null $body = null): static
+    public function addTriggerAfterSettle(string $key, $body = null)
     {
         $this->triggersAfterSettle[$key] = $body;
 
@@ -271,7 +273,7 @@ class HtmxComponent extends Component
      * @param array|string|null $body
      * @return static
      */
-    public function addTriggerAfterSwap(string $key, string|array|null $body = null): static
+    public function addTriggerAfterSwap(string $key, $body = null)
     {
         $this->triggersAfterSwap[$key] = $body;
 
@@ -292,7 +294,9 @@ class HtmxComponent extends Component
         }
 
         if (!empty($this->triggersAfterSettle)) {
-            $response = $response->withHeader('HX-Trigger-After-Settle', $this->encodeTriggers($this->triggersAfterSettle));
+            $response = $response->withHeader(
+                'HX-Trigger-After-Settle', $this->encodeTriggers($this->triggersAfterSettle)
+            );
         }
 
         if (!empty($this->triggersAfterSwap)) {
@@ -361,7 +365,7 @@ class HtmxComponent extends Component
     /**
      * Encode triggers
      *
-     * @param array  $triggers List of triggers
+     * @param array $triggers List of triggers
      * @return string
      */
     private function encodeTriggers(array $triggers): string
@@ -381,7 +385,7 @@ class HtmxComponent extends Component
      *
      * @param string|null $block Name of the block
      */
-    public function setBlock(?string $block): static
+    public function setBlock(?string $block)
     {
         $this->blocks = [$block];
 
@@ -393,7 +397,7 @@ class HtmxComponent extends Component
      *
      * @param string $block Name of the block
      */
-    public function addBlock(string $block): static
+    public function addBlock(string $block)
     {
         $this->blocks[] = $block;
 
@@ -405,7 +409,7 @@ class HtmxComponent extends Component
      *
      * @param array $block List of block names to render
      */
-    public function addBlocks(array $block): static
+    public function addBlocks(array $block)
     {
         $this->blocks[] = $block;
 
