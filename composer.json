@@ -1,5 +1,5 @@
 {
-    "name": "T0nyDamage/cake-htmx",
+    "name": "t0nydamage/cake-htmx",
     "description": "Htmx plugin for CakePHP",
     "type": "cakephp-plugin",
     "license": "MIT",
