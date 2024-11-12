@@ -1,8 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace CakeHtmx\Middleware;
 
+use Cake\Http\ServerRequest;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -22,21 +24,21 @@ class HtmxRequestMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $request->addDetector(
+        ServerRequest::addDetector(
             'htmx',
             function ($request) {
                 return filter_var($request->getHeaderLine('HX-Request'), FILTER_VALIDATE_BOOLEAN);
             }
         );
 
-        $request->addDetector(
+        ServerRequest::addDetector(
             'boosted',
             function ($request) {
                 return filter_var($request->getHeaderLine('HX-Boosted'), FILTER_VALIDATE_BOOLEAN);
             }
         );
 
-        $request->addDetector(
+        ServerRequest::addDetector(
             'historyRestoreRequest',
             function ($request) {
                 return filter_var($request->getHeaderLine('HX-History-Restore-Request'), FILTER_VALIDATE_BOOLEAN);
