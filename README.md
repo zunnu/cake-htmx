@@ -130,7 +130,7 @@ $this->Htmx->addBlocks(['userTable', 'pagination']);
 ```
 
 ### OOB Swap
-Htmx supports updating multiple targets by returning multiple partial responses with [`hx-swap-oop`](https://htmx.org/docs/#oob_swaps).
+Htmx supports updating multiple targets by returning multiple partial responses with [`hx-swap-oob`](https://htmx.org/docs/#oob_swaps).
 See the example `Users index search functionality with pagination update`
 Note if you are working with tables like in the example. You might need to add
 ```javascript
