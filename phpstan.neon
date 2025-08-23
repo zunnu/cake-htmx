@@ -1,0 +1,13 @@
+parameters:
+    level: 8
+    treatPhpDocTypesAsCertain: false
+    tmpDir: 'tmp/cache/phpstan'
+    bootstrapFiles:
+        - tests/bootstrap.php
+    paths:
+        - src/
+    ignoreErrors:
+        -
+            identifier: missingType.generics
+        -
+            identifier: missingType.iterableValue
