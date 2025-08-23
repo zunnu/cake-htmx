@@ -43,6 +43,14 @@ class HtmxRequestMiddleware implements MiddlewareInterface
             },
         );
 
+        $request->addDetector(
+            'htmx-noboost',
+            function (ServerRequestInterface $request): bool {
+                /** @var \Cake\Http\ServerRequest $request */
+                return $request->is('htmx') && !$request->is('boosted');
+            },
+        );
+
         return $handler->handle($request);
     }
 }
