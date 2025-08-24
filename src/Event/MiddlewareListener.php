@@ -5,6 +5,7 @@ namespace CakeHtmx\Event;
 
 use Cake\Event\Event;
 use Cake\Event\EventListenerInterface;
+use Cake\Http\MiddlewareQueue;
 use CakeHtmx\Middleware\HtmxRequestMiddleware;
 
 /**
@@ -31,10 +32,10 @@ class MiddlewareListener implements EventListenerInterface
      * Register middleware
      *
      * @param \Cake\Event\Event $event The buildMiddleware event that was fired
-     * @param @param \Cake\Http\MiddlewareQueue|null $middlewareQueue MiddlewareQueue or null.
+     * @param \Cake\Http\MiddlewareQueue $middlewareQueue MiddlewareQueue or null.
      * @return void
      */
-    public function buildMiddleware(Event $event, $middlewareQueue): void
+    public function buildMiddleware(Event $event, MiddlewareQueue $middlewareQueue): void
     {
         $middlewareQueue->add(new HtmxRequestMiddleware());
     }

@@ -16,7 +16,7 @@ class HtmxRequestMiddleware implements MiddlewareInterface
     /**
      * Process method.
      *
-     * @param \Psr\Http\Message\ServerRequestInterface $request The request.
+     * @param \Cake\Http\ServerRequest $request The request.
      * @param \Psr\Http\Server\RequestHandlerInterface $handler The request handler.
      * @return \Psr\Http\Message\ResponseInterface A response.
      */
@@ -26,21 +26,29 @@ class HtmxRequestMiddleware implements MiddlewareInterface
             'htmx',
             function ($request) {
                 return filter_var($request->getHeaderLine('HX-Request'), FILTER_VALIDATE_BOOLEAN);
-            }
+            },
         );
 
         $request->addDetector(
             'boosted',
             function ($request) {
                 return filter_var($request->getHeaderLine('HX-Boosted'), FILTER_VALIDATE_BOOLEAN);
-            }
+            },
         );
 
         $request->addDetector(
             'historyRestoreRequest',
             function ($request) {
                 return filter_var($request->getHeaderLine('HX-History-Restore-Request'), FILTER_VALIDATE_BOOLEAN);
-            }
+            },
+        );
+
+        $request->addDetector(
+            'htmx-noboost',
+            function (ServerRequestInterface $request): bool {
+                /** @var \Cake\Http\ServerRequest $request */
+                return $request->is('htmx') && !$request->is('boosted');
+            },
         );
 
         return $handler->handle($request);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace CakeHtmx\Controller\Component;
 
 use Cake\Controller\Component;
+use Cake\Event\Event;
 use Cake\Http\Response;
 
 /**
@@ -74,7 +75,7 @@ class HtmxComponent extends Component
      *
      * @return void
      */
-    public function beforeRender($event): void
+    public function beforeRender(Event $event): void
     {
         if ($this->getController()->getRequest()->is('htmx')) {
             $this->prepare();
@@ -88,22 +89,29 @@ class HtmxComponent extends Component
      *
      * @return void
      */
-    public function afterRender($event)
+    public function afterRender(Event $event): void
     {
         if (!empty($this->blocks)) {
+            /** @var \Cake\View\View $view */
+            $view = $event->getSubject();
             // empty the content and replace with the ones we want
-            $event->getSubject()->assign('content', '');
+            $view->assign('content', '');
 
             $first = true;
-            foreach ($this->blocks as $key => $block) {
-                if ($event->getSubject()->exists($block)) {
-                    $fetchBlock = $event->getSubject()->fetch($block);
+            foreach ($this->blocks as $block) {
+                if ($view->exists($block)) {
+                    $fetchBlock = $view->fetch($block);
 
                     if (!$first) {
-                        $fetchBlock = preg_replace('/(<[^\/][^>]*)(>)/', '$1 hx-swap-oob="innerHTML"$2', $fetchBlock, 1);
+                        $fetchBlock = preg_replace(
+                            '/(<[^\/][^>]*)(>)/',
+                            '$1 hx-swap-oob="innerHTML"$2',
+                            $fetchBlock,
+                            1,
+                        );
                     }
 
-                    $event->getSubject()->append('content', $fetchBlock);
+                    $view->append('content', $fetchBlock);
 
                     if ($first) {
                         $first = false;
@@ -292,11 +300,17 @@ class HtmxComponent extends Component
         }
 
         if (!empty($this->triggersAfterSettle)) {
-            $response = $response->withHeader('HX-Trigger-After-Settle', $this->encodeTriggers($this->triggersAfterSettle));
+            $response = $response->withHeader(
+                'HX-Trigger-After-Settle',
+                $this->encodeTriggers($this->triggersAfterSettle),
+            );
         }
 
         if (!empty($this->triggersAfterSwap)) {
-            $response = $response->withHeader('HX-Trigger-After-Swap', $this->encodeTriggers($this->triggersAfterSwap));
+            $response = $response->withHeader(
+                'HX-Trigger-After-Swap',
+                $this->encodeTriggers($this->triggersAfterSwap),
+            );
         }
 
         $this->getController()->setResponse($response);
@@ -369,7 +383,7 @@ class HtmxComponent extends Component
         $hasNonNullable = count($triggers) !== count(array_filter($triggers, 'is_null'));
 
         if ($hasNonNullable) {
-            return json_encode($triggers);
+            return json_encode($triggers) ?: '';
         }
 
         return implode(',', array_keys($triggers));
@@ -415,9 +429,9 @@ class HtmxComponent extends Component
     /**
      * Get the block that will be rendered
      *
-     * @return string|null
+     * @return array
      */
-    public function getBlocks(): ?string
+    public function getBlocks(): ?array
     {
         return $this->blocks;
     }

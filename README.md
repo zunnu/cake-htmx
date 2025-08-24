@@ -32,6 +32,7 @@ You can use detector to check if the request is Htmx.
 ```php
 $this->getRequest()->is('htmx')  // Always true if the request is performed by Htmx
 $this->getRequest()->is('boosted') // Indicates that the request is via an element using hx-boost
+$this->getRequest()->is('htmx-noboost') // Convenience check that returns true if the request is htmx but not boosted.
 $this->getRequest()->is('historyRestoreRequest') // True if the request is for history restoration after a miss in the local history cache
 ```
 Using the component you can check more specific details about the request.  
