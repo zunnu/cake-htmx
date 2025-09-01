@@ -417,11 +417,16 @@ class HtmxComponent extends Component
     /**
      * Add blocks to render
      *
-     * @param array $block List of block names to render
+     * @param array $blocks List of block names to render
+     * @param bool $append Whether to append the blocks or replace existing ones
      */
-    public function addBlocks(array $block): static
+    public function addBlocks(array $blocks, bool $append = false): static
     {
-        $this->blocks[] = $block;
+        if ($append) {
+            $this->blocks = array_merge($this->blocks, $blocks);
+        } else {
+            $this->blocks = $blocks;
+        }
 
         return $this;
     }

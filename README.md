@@ -128,6 +128,7 @@ $this->Htmx->addBlock('userTable');
 The `addBlocks()` function allows you to add multiple blocks to the list of blocks that should be rendered
 ```php
 $this->Htmx->addBlocks(['userTable', 'pagination']);
+$this->Htmx->addBlocks(['userTable', 'pagination'], true); // Appends the blocks to the existing array.
 ```
 
 ### OOB Swap
