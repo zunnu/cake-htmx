@@ -8,7 +8,9 @@
         "cakephp/cakephp": "^5.0.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.1"
+        "phpunit/phpunit": "^10.1",
+        "phpstan/phpstan": "^2.1",
+        "cakephp/cakephp-codesniffer": "^5.2"
     },
     "autoload": {
         "psr-4": {
@@ -20,5 +22,15 @@
             "CakeHtmx\\Test\\": "tests/",
             "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
         }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "scripts": {
+        "stan": "phpstan analyse",
+        "cs-check": "phpcs --colors -p -s",
+        "cs-fix": "phpcbf --colors -p -s"
     }
 }
