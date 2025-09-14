@@ -117,6 +117,8 @@ document.body.addEventListener('htmx:configRequest', (event) => {
 ## Rendering blocks and OOB Swap
 The `setBlock()` function allows you to render a specific block while removing other blocks that might be rendered. This is particularly useful when you need to update only a portion of your view.
 
+Calling `setBlock(null)` clears any selection.
+
 ```php
 $this->Htmx->setBlock('userTable');
 ```
@@ -130,6 +132,12 @@ The `addBlocks()` function allows you to add multiple blocks to the list of bloc
 $this->Htmx->addBlocks(['userTable', 'pagination']);
 $this->Htmx->addBlocks(['userTable', 'pagination'], true); // Appends the blocks to the existing array.
 ```
+> **Note:** `addBlocks()` appends by default. Pass `false` as the second argument to replace:
+>
+> ```php
+> $this->Htmx->addBlocks(['usersTable', 'pagination']);           // append (default)
+> $this->Htmx->addBlocks(['onlyThis'], false);                    // replace
+> ```
 
 ### OOB Swap
 Htmx supports updating multiple targets by returning multiple partial responses with [`hx-swap-oob`](https://htmx.org/docs/#oob_swaps).
