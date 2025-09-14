@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 5.x-dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, 5.x-dev ]
 
 env:
   PHP_EXTENSIONS: intl, pdo_sqlite
