@@ -394,6 +394,7 @@ class HtmxComponent extends Component
     /**
      * Set a specific block to render
      * Removes other blocks that might be rendered
+     * Passing `null` will clear all blocks.
      *
      * @param string|null $block Name of the block
      */
@@ -447,5 +448,17 @@ class HtmxComponent extends Component
     public function getBlocks(): ?array
     {
         return $this->blocks;
+    }
+
+    /**
+     * Clear all blocks so none will be rendered.
+     *
+     * @return static
+     */
+    public function clearBlocks(): static
+    {
+        $this->blocks = [];
+
+        return $this;
     }
 }

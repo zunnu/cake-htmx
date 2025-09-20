@@ -150,6 +150,17 @@ Note if you are working with tables like in the example. You might need to add
 ```
 In your template or layout.
 
+
+### Clearing Blocks
+You can clear the current block selection in two equivalent ways:
+```php
+// Explicitly clear any selection
+$this->Htmx->clearBlocks();
+
+// Or, using setBlock(null)
+$this->Htmx->setBlock(null);
+```
+
 ## Examples
 
 ### Users index search functionality

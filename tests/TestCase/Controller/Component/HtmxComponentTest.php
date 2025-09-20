@@ -472,4 +472,23 @@ final class HtmxComponentTest extends TestCase
             }
         };
     }
+
+    /**
+     * clearBlocks(): removes all blocks; afterRender() should not change content.
+     *
+     * @return void
+     */
+    public function testClearBlocks(): void
+    {
+        $view = new View($this->Controller->getRequest());
+        $view->assign('content', 'ORIGINAL');
+
+        $this->Htmx->setBlock('usersTable');
+        $this->Htmx->clearBlocks();
+
+        $this->assertSame([], $this->Htmx->getBlocks());
+
+        $this->Htmx->afterRender(new Event('View.afterRender', $view));
+        $this->assertSame('ORIGINAL', $view->fetch('content'));
+    }
 }
