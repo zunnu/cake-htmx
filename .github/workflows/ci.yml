@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 5.x-dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, 5.x-dev ]
 
 env:
   PHP_EXTENSIONS: intl, pdo_sqlite
@@ -30,5 +30,53 @@ jobs:
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --no-progress --error-format=github
 
+      - name: Show PHPCS installed standards
+        run: vendor/bin/phpcs -i || true
+
+      - name: Ensure PHPCS sees Cake & Slevomat standards
+        run: |
+          vendor/bin/phpcs --config-set installed_paths \
+            vendor/cakephp/cakephp-codesniffer,vendor/slevomat/coding-standard
+          vendor/bin/phpcs -i
+
       - name: Run PHPCS
         run: vendor/bin/phpcs
+
+  tests:
+    name: PHP ${{ matrix.php }} • PHPUnit
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '8.2'
+            experimental: false
+          - php: '8.3'
+            experimental: false
+          - php: '8.4'
+            experimental: true   # allow failures if ecosystem lags
+    continue-on-error: ${{ matrix.experimental }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          ini-values: |
+            memory_limit=512M
+          coverage: none
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Install dependencies (cached)
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --no-interaction --no-progress
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit

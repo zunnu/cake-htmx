@@ -117,6 +117,8 @@ document.body.addEventListener('htmx:configRequest', (event) => {
 ## Rendering blocks and OOB Swap
 The `setBlock()` function allows you to render a specific block while removing other blocks that might be rendered. This is particularly useful when you need to update only a portion of your view.
 
+Calling `setBlock(null)` clears any selection.
+
 ```php
 $this->Htmx->setBlock('userTable');
 ```
@@ -130,9 +132,15 @@ The `addBlocks()` function allows you to add multiple blocks to the list of bloc
 $this->Htmx->addBlocks(['userTable', 'pagination']);
 $this->Htmx->addBlocks(['userTable', 'pagination'], true); // Appends the blocks to the existing array.
 ```
+> **Note:** `addBlocks()` appends by default. Pass `false` as the second argument to replace:
+>
+> ```php
+> $this->Htmx->addBlocks(['usersTable', 'pagination']);           // append (default)
+> $this->Htmx->addBlocks(['onlyThis'], false);                    // replace
+> ```
 
 ### OOB Swap
-Htmx supports updating multiple targets by returning multiple partial responses with [`hx-swap-oop`](https://htmx.org/docs/#oob_swaps).
+Htmx supports updating multiple targets by returning multiple partial responses with [`hx-swap-oob`](https://htmx.org/docs/#oob_swaps).
 See the example `Users index search functionality with pagination update`
 Note if you are working with tables like in the example. You might need to add
 ```javascript
@@ -141,6 +149,17 @@ Note if you are working with tables like in the example. You might need to add
 </script>
 ```
 In your template or layout.
+
+
+### Clearing Blocks
+You can clear the current block selection in two equivalent ways:
+```php
+// Explicitly clear any selection
+$this->Htmx->clearBlocks();
+
+// Or, using setBlock(null)
+$this->Htmx->setBlock(null);
+```
 
 ## Examples
 

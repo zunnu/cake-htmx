@@ -91,31 +91,33 @@ class HtmxComponent extends Component
      */
     public function afterRender(Event $event): void
     {
-        if (!empty($this->blocks)) {
-            /** @var \Cake\View\View $view */
-            $view = $event->getSubject();
-            // empty the content and replace with the ones we want
-            $view->assign('content', '');
+        if (empty($this->blocks)) {
+            return;
+        }
 
-            $first = true;
-            foreach ($this->blocks as $block) {
-                if ($view->exists($block)) {
-                    $fetchBlock = $view->fetch($block);
+        /** @var \Cake\View\View $view */
+        $view = $event->getSubject();
+        // empty the content and replace with the ones we want
+        $view->assign('content', '');
 
-                    if (!$first) {
-                        $fetchBlock = preg_replace(
-                            '/(<[^\/][^>]*)(>)/',
-                            '$1 hx-swap-oob="innerHTML"$2',
-                            $fetchBlock,
-                            1,
-                        );
-                    }
+        $first = true;
+        foreach ($this->blocks as $block) {
+            if ($view->exists($block)) {
+                $fetchBlock = $view->fetch($block);
 
-                    $view->append('content', $fetchBlock);
+                if (!$first) {
+                    $fetchBlock = preg_replace(
+                        '/(<[^\/][^>]*)(>)/',
+                        '$1 hx-swap-oob="innerHTML"$2',
+                        $fetchBlock,
+                        1,
+                    );
+                }
 
-                    if ($first) {
-                        $first = false;
-                    }
+                $view->append('content', $fetchBlock);
+
+                if ($first) {
+                    $first = false;
                 }
             }
         }
@@ -392,12 +394,13 @@ class HtmxComponent extends Component
     /**
      * Set a specific block to render
      * Removes other blocks that might be rendered
+     * Passing `null` will clear all blocks.
      *
      * @param string|null $block Name of the block
      */
     public function setBlock(?string $block): static
     {
-        $this->blocks = [$block];
+        $this->blocks = !empty($block) ? [$block] : [];
 
         return $this;
     }
@@ -420,8 +423,14 @@ class HtmxComponent extends Component
      * @param array $blocks List of block names to render
      * @param bool $append Whether to append the blocks or replace existing ones
      */
-    public function addBlocks(array $blocks, bool $append = false): static
+    public function addBlocks(array $blocks, bool $append = true): static
     {
+        // Make sure no empty blocks
+        $blocks = array_values(array_filter(
+            $blocks,
+            static fn($b) => is_string($b) && $b !== '',
+        ));
+
         if ($append) {
             $this->blocks = array_merge($this->blocks, $blocks);
         } else {
@@ -439,5 +448,17 @@ class HtmxComponent extends Component
     public function getBlocks(): ?array
     {
         return $this->blocks;
+    }
+
+    /**
+     * Clear all blocks so none will be rendered.
+     *
+     * @return static
+     */
+    public function clearBlocks(): static
+    {
+        $this->blocks = [];
+
+        return $this;
     }
 }
