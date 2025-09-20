@@ -10,7 +10,9 @@
     "require-dev": {
         "phpunit/phpunit": "^10.1",
         "phpstan/phpstan": "^2.1",
-        "cakephp/cakephp-codesniffer": "^5.2"
+        "cakephp/cakephp-codesniffer": "^5.2",
+        "slevomat/coding-standard": "^8.15",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -19,8 +21,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "CakeHtmx\\Test\\": "tests/",
-            "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
+            "CakeHtmx\\Test\\": "tests/"
         }
     },
     "config": {
@@ -29,6 +30,7 @@
         }
     },
     "scripts": {
+        "test": "phpunit",
         "stan": "phpstan analyse",
         "cs-check": "phpcs --colors -p -s",
         "cs-fix": "phpcbf --colors -p -s"
