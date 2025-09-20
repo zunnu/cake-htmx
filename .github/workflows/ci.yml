@@ -30,6 +30,15 @@ jobs:
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --no-progress --error-format=github
 
+      - name: Show PHPCS installed standards
+        run: vendor/bin/phpcs -i || true
+
+      - name: Ensure PHPCS sees Cake & Slevomat standards
+        run: |
+          vendor/bin/phpcs --config-set installed_paths \
+            vendor/cakephp/cakephp-codesniffer,vendor/slevomat/coding-standard
+          vendor/bin/phpcs -i
+
       - name: Run PHPCS
         run: vendor/bin/phpcs
 
