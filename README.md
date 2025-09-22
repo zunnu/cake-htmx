@@ -421,4 +421,4 @@ Licensed under [The MIT License][mit].
 
 [cakephp]:http://cakephp.org
 [composer]:http://getcomposer.org
-[mit]:http://www.opensource.org/licenses/mit-license.php
+[mit]:LICENSE.md
