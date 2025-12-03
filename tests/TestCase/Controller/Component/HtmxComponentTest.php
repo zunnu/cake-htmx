@@ -8,9 +8,13 @@ use Cake\Controller\Controller;
 use Cake\Event\Event;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
+use Cake\Routing\Route\DashedRoute;
+use Cake\Routing\RouteBuilder;
+use Cake\Routing\Router;
 use Cake\TestSuite\TestCase;
 use Cake\View\View;
 use CakeHtmx\Controller\Component\HtmxComponent;
+use Laminas\Diactoros\Uri;
 
 /**
  * Test case for \CakeHtmx\Controller\Component\HtmxComponent.
@@ -40,6 +44,15 @@ final class HtmxComponentTest extends TestCase
     {
         parent::setUp();
 
+        // Set up routes for testing Router::url() with arrays
+        Router::createRouteBuilder('/')->scope('/', function (RouteBuilder $routes) {
+            $routes->setRouteClass(DashedRoute::class);
+            $routes->connect('/posts/view/*', ['controller' => 'Posts', 'action' => 'view']);
+            $routes->connect('/articles/index', ['controller' => 'Articles', 'action' => 'index']);
+            $routes->connect('/users/edit/*', ['controller' => 'Users', 'action' => 'edit']);
+            $routes->connect('/dashboard/index', ['controller' => 'Dashboard', 'action' => 'index']);
+        });
+
         $request = new ServerRequest();
 
         // CakePHP 5: Controller no longer accepts Response as 2nd arg.
@@ -58,6 +71,7 @@ final class HtmxComponentTest extends TestCase
     protected function tearDown(): void
     {
         unset($this->Htmx, $this->Controller);
+        Router::reload();
         parent::tearDown();
     }
 
@@ -274,6 +288,62 @@ final class HtmxComponentTest extends TestCase
         $resp = $this->Controller->getResponse();
 
         $this->assertSame('/somewhere', $resp->getHeaderLine('HX-Redirect'));
+        $this->assertSame(200, $resp->getStatusCode());
+    }
+
+    public function testLocationWithArray(): void
+    {
+        $this->Htmx->location(['controller' => 'Posts', 'action' => 'view', 1]);
+        $this->assertSame('/posts/view/1', $this->Controller->getResponse()->getHeaderLine('HX-Location'));
+    }
+
+    public function testLocationWithUriInterface(): void
+    {
+        $uri = new Uri('/some/path');
+        $this->Htmx->location($uri);
+        $this->assertSame('/some/path', $this->Controller->getResponse()->getHeaderLine('HX-Location'));
+    }
+
+    public function testPushUrlWithArray(): void
+    {
+        $this->Htmx->pushUrl(['controller' => 'Articles', 'action' => 'index']);
+        $this->assertSame('/articles/index', $this->Controller->getResponse()->getHeaderLine('HX-Push-Url'));
+    }
+
+    public function testPushUrlWithUriInterface(): void
+    {
+        $uri = new Uri('/articles/list');
+        $this->Htmx->pushUrl($uri);
+        $this->assertSame('/articles/list', $this->Controller->getResponse()->getHeaderLine('HX-Push-Url'));
+    }
+
+    public function testReplaceUrlWithArray(): void
+    {
+        $this->Htmx->replaceUrl(['controller' => 'Users', 'action' => 'edit', 5]);
+        $this->assertSame('/users/edit/5', $this->Controller->getResponse()->getHeaderLine('HX-Replace-Url'));
+    }
+
+    public function testReplaceUrlWithUriInterface(): void
+    {
+        $uri = new Uri('/users/profile');
+        $this->Htmx->replaceUrl($uri);
+        $this->assertSame('/users/profile', $this->Controller->getResponse()->getHeaderLine('HX-Replace-Url'));
+    }
+
+    public function testRedirectWithArray(): void
+    {
+        $this->Htmx->redirect(['controller' => 'Dashboard', 'action' => 'index']);
+        $resp = $this->Controller->getResponse();
+        $this->assertSame('/dashboard/index', $resp->getHeaderLine('HX-Redirect'));
+        $this->assertSame(200, $resp->getStatusCode());
+    }
+
+    public function testRedirectWithUriInterface(): void
+    {
+        $uri = new Uri('/admin/dashboard');
+        $this->Htmx->redirect($uri);
+        $resp = $this->Controller->getResponse();
+        $this->assertSame('/admin/dashboard', $resp->getHeaderLine('HX-Redirect'));
         $this->assertSame(200, $resp->getStatusCode());
     }
 

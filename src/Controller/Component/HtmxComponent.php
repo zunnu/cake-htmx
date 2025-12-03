@@ -6,6 +6,8 @@ namespace CakeHtmx\Controller\Component;
 use Cake\Controller\Component;
 use Cake\Event\Event;
 use Cake\Http\Response;
+use Cake\Routing\Router;
+use Psr\Http\Message\UriInterface;
 
 /**
  * Htmx component
@@ -176,12 +178,12 @@ class HtmxComponent extends Component
     /**
      * Do a client-side redirect that does not do a full page reload
      *
-     * @param string $url Where to redirect
+     * @param \Psr\Http\Message\UriInterface|array|string|null $url Where to redirect
      * @return \Cake\Http\Response|null
      */
-    public function location(string $url): ?Response
+    public function location(UriInterface|array|string|null $url): ?Response
     {
-        $response = $this->getController()->getResponse()->withHeader('HX-Location', $url);
+        $response = $this->getController()->getResponse()->withHeader('HX-Location', Router::url($url));
         $this->getController()->setResponse($response);
 
         return $this->getController()->getResponse();
@@ -190,12 +192,12 @@ class HtmxComponent extends Component
     /**
      * Pushes a new url into the history stack
      *
-     * @param string $url Url to push
+     * @param \Psr\Http\Message\UriInterface|array|string|null $url Url to push
      * @return \Cake\Http\Response|null
      */
-    public function pushUrl(string $url): ?Response
+    public function pushUrl(UriInterface|array|string|null $url): ?Response
     {
-        $response = $this->getController()->getResponse()->withHeader('HX-Push-Url', $url);
+        $response = $this->getController()->getResponse()->withHeader('HX-Push-Url', Router::url($url));
         $this->getController()->setResponse($response);
 
         return $this->getController()->getResponse();
@@ -204,12 +206,12 @@ class HtmxComponent extends Component
     /**
      * Replaces the current URL in the location bar
      *
-     * @param string $url Url to replace
+     * @param \Psr\Http\Message\UriInterface|array|string|null $url Url to replace
      * @return \Cake\Http\Response|null
      */
-    public function replaceUrl(string $url): ?Response
+    public function replaceUrl(UriInterface|array|string|null $url): ?Response
     {
-        $response = $this->getController()->getResponse()->withHeader('HX-Replace-Url', $url);
+        $response = $this->getController()->getResponse()->withHeader('HX-Replace-Url', Router::url($url));
         $this->getController()->setResponse($response);
 
         return $this->getController()->getResponse();
@@ -323,13 +325,13 @@ class HtmxComponent extends Component
     /**
      * Trigger a client side redirect
      *
-     * @param string $to Where to redirect
+     * @param \Psr\Http\Message\UriInterface|array|string|null $to Where to redirect
      * @return \Cake\Http\Response|null
      */
-    public function redirect(string $to): ?Response
+    public function redirect(UriInterface|array|string|null $to): ?Response
     {
         $response = $this->getController()->getResponse();
-        $response = $response->withHeader('HX-Redirect', $to)->withStatus(200);
+        $response = $response->withHeader('HX-Redirect', Router::url($to))->withStatus(200);
         $this->getController()->setResponse($response);
 
         return $this->getController()->getResponse();
